@@ -1,0 +1,23 @@
+{
+  "name": "xcraft-contrib-bootstrap",
+  "version": "0.1.0",
+  "description": "Xcraft bootstrap",
+  "main": "bootstrap.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "xcraft",
+    "bootstrap"
+  ],
+  "repository" : {
+    "type" : "file",
+    "url" : "lib/xcraft-contrib-bootstrap"
+  },
+  "author": "Mathieu Schroeter",
+  "license": "MIT",
+  "dependencies": {
+    "xcraft-core-etc": "0.1.0"
+  },
+  "devDependencies": {}
+}
