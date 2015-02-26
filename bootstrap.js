@@ -138,6 +138,21 @@ cmd.peon = function () {
         };
         busClient.command.send ('pacman.build', msg);
       }, callback);
+    }],
+
+    /* Install builded packages. */
+    installBuild: ['build', function (callback, results) {
+      async.eachSeries (results.install, function (item, callback) {
+        busClient.events.subscribe ('pacman.install.finished', function () {
+          busClient.events.unsubscribe ('pacman.install.finished');
+          callback ();
+        });
+
+        var msg = {
+          packageRef: item.name + ':' + xPlatform.getToolchainArch ()
+        };
+        busClient.command.send ('pacman.install', msg);
+      }, callback);
     }]
   }, function (err) {
     if (err) {
