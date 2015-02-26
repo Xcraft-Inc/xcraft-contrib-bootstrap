@@ -11,6 +11,12 @@ var busClient = require ('xcraft-core-busclient');
 
 var cmd = {};
 
+/**
+ * Bootstrap WPKG.
+ *
+ * 1. Build and install CMake.
+ * 2. Build and install WPKG.
+ */
 cmd.wpkg = function () {
   async.auto ({
     cmake: function (callback) {
@@ -41,6 +47,17 @@ cmd.wpkg = function () {
   });
 };
 
+/**
+ * Bootstrap the peon.
+ *
+ * 1. List all packages in the bootstrap namespace.
+ * 2. Make these packages.
+ *    Deploy in the local repositories (src too).
+ * 3. Install these packages in the devroot/.
+ * 4. Build the installed source packages in devroot/.
+ *    Deploy these paykages in the local repository.
+ * 5. Install the builded packages in devroot/.
+ */
 cmd.peon = function () {
   async.auto ({
     /* Retrieve the list of bootstrap packages. */
@@ -165,6 +182,12 @@ cmd.peon = function () {
   });
 };
 
+/**
+ * Bootstrap everything.
+ *
+ * 1. Bootstrap WPKG.
+ * 2. Bootstrap the peon.
+ */
 cmd.all = function () {
   async.series ([
     function (callback) {
