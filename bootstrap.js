@@ -2,7 +2,8 @@
 
 var moduleName = 'bootstrap';
 
-var path = require ('path');
+var path  = require ('path');
+var async = require ('async');
 
 var xLog      = require ('xcraft-core-log') (moduleName);
 var xPlatform = require ('xcraft-core-platform');
@@ -10,9 +11,37 @@ var busClient = require ('xcraft-core-busclient');
 
 var cmd = {};
 
-cmd.peon = function () {
-  var async = require ('async');
+cmd.wpkg = function () {
+  async.auto ({
+    cmake: function (callback) {
+      busClient.events.subscribe ('cmake.build.finished', function () {
+        busClient.events.unsubscribe ('cmake.build.finished');
+        callback ();
+      });
 
+      busClient.command.send ('cmake.build');
+    },
+
+    wpkg: ['cmake', function (callback) {
+      busClient.events.subscribe ('wpkg.build.finished', function () {
+        busClient.events.unsubscribe ('wpkg.build.finished');
+        callback ();
+      });
+
+      busClient.command.send ('wpkg.build');
+    }]
+  }, function (err) {
+    if (err) {
+      xLog.err (err);
+    } else {
+      xLog.info ('wpkg bootstrapped');
+    }
+
+    busClient.events.send ('bootstrap.wpkg.finished');
+  });
+};
+
+cmd.peon = function () {
   async.auto ({
     /* Retrieve the list of bootstrap packages. */
     list: function (callback) {
