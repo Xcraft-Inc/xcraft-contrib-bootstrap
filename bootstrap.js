@@ -122,7 +122,7 @@ cmd.peon = function () {
 
     /* Build bootstrap packages. */
     build: ['install', function (callback, results) {
-      async.eachSeries (results.make, function (item, callback) {
+      async.eachSeries (results.install, function (item, callback) {
         if (!item.build) {
           callback ();
           return;
