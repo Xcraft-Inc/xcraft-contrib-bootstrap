@@ -99,17 +99,25 @@ cmd.peon = function () {
 
     /* Install bootstrap packages (and source packages). */
     install: ['make', function (callback, results) {
+      var list = [];
+
       async.eachSeries (results.make, function (item, callback) {
         busClient.events.subscribe ('pacman.install.finished', function () {
           busClient.events.unsubscribe ('pacman.install.finished');
           callback ();
         });
 
+        if (item.build) {
+          list.push (item.name);
+        }
+
         var msg = {
           packageRef: item.name + (item.build ? '-src' : '') + ':' + xPlatform.getToolchainArch ()
         };
         busClient.command.send ('pacman.install', msg);
-      }, callback);
+      }, function (err) {
+        callback (err, list);
+      });
     }],
 
     /* Build bootstrap packages. */
