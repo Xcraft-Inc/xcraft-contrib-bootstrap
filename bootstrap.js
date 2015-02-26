@@ -142,6 +142,36 @@ cmd.peon = function () {
   });
 };
 
+cmd.all = function () {
+  async.series ([
+      function (callback) {
+        busClient.events.subscribe ('bootstrap.wpkg.finished', function () {
+          busClient.events.unsubscribe ('bootstrap.wpkg.finished');
+          callback ();
+        });
+
+        busClient.command.send ('bootstrap.wpkg');
+      },
+
+      function (callback) {
+        busClient.events.subscribe ('bootstrap.peon.finished', function () {
+          busClient.events.unsubscribe ('bootstrap.peon.finished');
+          callback ();
+        });
+
+        busClient.command.send ('bootstrap.peon');
+      }
+    ], function (err) {
+    if (err) {
+      xLog.err (err);
+    } else {
+      xLog.info ('everything bootstrapped');
+    }
+
+    busClient.events.send ('bootstrap.all.finished');
+  });
+};
+
 /**
  * Retrieve the list of available commands.
  *

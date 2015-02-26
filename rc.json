@@ -4,5 +4,8 @@
   },
   "peon": {
     "desc": "bootstrap for devroot/"
+  },
+  "all": {
+    "desc": "bootstrap everything"
   }
 }
