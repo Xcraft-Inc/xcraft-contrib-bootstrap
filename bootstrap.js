@@ -20,21 +20,11 @@ var cmd = {};
 cmd.wpkg = function () {
   async.auto ({
     cmake: function (callback) {
-      busClient.events.subscribe ('cmake.build.finished', function () {
-        busClient.events.unsubscribe ('cmake.build.finished');
-        callback ();
-      });
-
-      busClient.command.send ('cmake.build');
+      busClient.command.send ('cmake.build', null, callback);
     },
 
     wpkg: ['cmake', function (callback) {
-      busClient.events.subscribe ('wpkg.build.finished', function () {
-        busClient.events.unsubscribe ('wpkg.build.finished');
-        callback ();
-      });
-
-      busClient.command.send ('wpkg.build');
+      busClient.command.send ('wpkg.build', null, callback);
     }]
   }, function (err) {
     if (err) {
@@ -55,7 +45,7 @@ cmd.wpkg = function () {
  *    Deploy in the local repositories (src too).
  * 3. Install these packages in the devroot/.
  * 4. Build the installed source packages in devroot/.
- *    Deploy these paykages in the local repository.
+ *    Deploy these packages in the local repository.
  * 5. Install the builded packages in devroot/.
  */
 cmd.peon = function () {
@@ -76,12 +66,9 @@ cmd.peon = function () {
         });
       });
 
-      busClient.events.subscribe ('pacman.list.finished', function () {
-        busClient.events.unsubscribe ('pacman.list.finished');
+      busClient.command.send ('pacman.list', null, function () {
         callback (null, list);
       });
-
-      busClient.command.send ('pacman.list');
     },
 
     /* Make bootstrap packages. */
@@ -100,15 +87,10 @@ cmd.peon = function () {
           });
         });
 
-        busClient.events.subscribe ('pacman.make.finished', function () {
-          busClient.events.unsubscribe ('pacman.make.finished');
-          callback ();
-        });
-
         var msg = {
           packageName: item.name
         };
-        busClient.command.send ('pacman.make', msg);
+        busClient.command.send ('pacman.make', msg, callback);
       }, function (err) {
         callback (err, list);
       });
@@ -119,11 +101,6 @@ cmd.peon = function () {
       var list = [];
 
       async.eachSeries (results.make, function (item, callback) {
-        busClient.events.subscribe ('pacman.install.finished', function () {
-          busClient.events.unsubscribe ('pacman.install.finished');
-          callback ();
-        });
-
         if (item.build) {
           list.push (item.name);
         }
@@ -131,7 +108,7 @@ cmd.peon = function () {
         var msg = {
           packageRef: item.name + (item.build ? '-src' : '') + ':' + xPlatform.getToolchainArch ()
         };
-        busClient.command.send ('pacman.install', msg);
+        busClient.command.send ('pacman.install', msg, callback);
       }, function (err) {
         callback (err, list);
       });
@@ -145,30 +122,20 @@ cmd.peon = function () {
           return;
         }
 
-        busClient.events.subscribe ('pacman.build.finished', function () {
-          busClient.events.unsubscribe ('pacman.build.finished');
-          callback ();
-        });
-
         var msg = {
           packageRef: item.name + ':' + xPlatform.getToolchainArch ()
         };
-        busClient.command.send ('pacman.build', msg);
+        busClient.command.send ('pacman.build', msg, callback);
       }, callback);
     }],
 
     /* Install builded packages. */
     installBuild: ['build', function (callback, results) {
       async.eachSeries (results.install, function (item, callback) {
-        busClient.events.subscribe ('pacman.install.finished', function () {
-          busClient.events.unsubscribe ('pacman.install.finished');
-          callback ();
-        });
-
         var msg = {
           packageRef: item.name + ':' + xPlatform.getToolchainArch ()
         };
-        busClient.command.send ('pacman.install', msg);
+        busClient.command.send ('pacman.install', msg, callback);
       }, callback);
     }]
   }, function (err) {
@@ -191,21 +158,11 @@ cmd.peon = function () {
 cmd.all = function () {
   async.series ([
     function (callback) {
-      busClient.events.subscribe ('bootstrap.wpkg.finished', function () {
-        busClient.events.unsubscribe ('bootstrap.wpkg.finished');
-        callback ();
-      });
-
-      busClient.command.send ('bootstrap.wpkg');
+      busClient.command.send ('bootstrap.wpkg', null, callback);
     },
 
     function (callback) {
-      busClient.events.subscribe ('bootstrap.peon.finished', function () {
-        busClient.events.unsubscribe ('bootstrap.peon.finished');
-        callback ();
-      });
-
-      busClient.command.send ('bootstrap.peon');
+      busClient.command.send ('bootstrap.peon', null, callback);
     }
   ], function (err) {
     if (err) {
