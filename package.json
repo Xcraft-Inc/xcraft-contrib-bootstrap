@@ -10,18 +10,18 @@
     "xcraft",
     "bootstrap"
   ],
-  "repository" : {
-    "type" : "file",
-    "url" : "lib/xcraft-contrib-bootstrap"
+  "repository": {
+    "type": "file",
+    "url": "lib/xcraft-contrib-bootstrap"
   },
   "author": "Mathieu Schroeter",
   "license": "MIT",
   "dependencies": {
     "async": "^0.9.0",
-    "xcraft-core-etc": "0.1.0",
     "xcraft-core-busclient": "0.1.0",
-    "xcraft-core-platform": "0.1.0",
-    "xcraft-core-log": "0.1.0"
+    "xcraft-core-etc": "0.1.0",
+    "xcraft-core-log": "0.1.0",
+    "xcraft-core-platform": "0.1.0"
   },
   "devDependencies": {}
 }
