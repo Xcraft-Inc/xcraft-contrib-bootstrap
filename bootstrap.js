@@ -126,7 +126,7 @@ cmd.peon = function () {
     installBuild: ['build', function (callback, results) {
       async.eachSeries (results.install, function (item, callback) {
         var msg = {
-          packageRef: item.name + ':' + xPlatform.getToolchainArch ()
+          packageRef: item + ':' + xPlatform.getToolchainArch ()
         };
         busClient.command.send ('pacman.install', msg, callback);
       }, callback);
