@@ -115,18 +115,11 @@ cmd.peon = function () {
     }],
 
     /* Build bootstrap packages. */
-    build: ['install', function (callback, results) {
-      async.eachSeries (results.install, function (item, callback) {
-        if (!item.build) {
-          callback ();
-          return;
-        }
-
-        var msg = {
-          packageRef: item.name + ':' + xPlatform.getToolchainArch ()
-        };
-        busClient.command.send ('pacman.build', msg, callback);
-      }, callback);
+    build: ['install', function (callback) {
+      var msg = {
+        packageRef: ':' + xPlatform.getToolchainArch ()
+      };
+      busClient.command.send ('pacman.build', msg, callback);
     }],
 
     /* Install builded packages. */
