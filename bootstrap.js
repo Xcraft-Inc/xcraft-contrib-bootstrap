@@ -79,6 +79,10 @@ cmd.peon = function () {
         busClient.events.subscribe ('pacman.make.control', function (msg) {
           busClient.events.unsubscribe ('pacman.make.control');
 
+          if (!msg.data) {
+            return;
+          }
+
           msg.data.forEach (function (controlFile) {
             list.push ({
               name:  item.name,
