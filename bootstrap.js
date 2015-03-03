@@ -46,7 +46,7 @@ cmd.wpkg = function () {
  * 3. Install these packages in the devroot/.
  * 4. Build the installed source packages in devroot/.
  *    Deploy these packages in the local repository.
- * 5. Install the builded packages in devroot/.
+ * 5. Install the built packages in devroot/.
  */
 cmd.peon = function () {
   async.auto ({
