@@ -83,11 +83,19 @@ cmd.peon = function () {
             return;
           }
 
-          msg.data.forEach (function (controlFile) {
+          msg.data.some (function (controlFile) {
+            if (controlFile.arch !== 'all' &&
+                controlFile.arch !== 'source' &&
+                controlFile.arch !== xPlatform.getToolchainArch ()) {
+              return false;
+            }
+
             list.push ({
               name:  item.name,
               build: controlFile.arch === 'source'
             });
+
+            return true;
           });
         });
 
