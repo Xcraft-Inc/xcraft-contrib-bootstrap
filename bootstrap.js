@@ -115,10 +115,12 @@ cmd.peon = function () {
       async.eachSeries (results.make, function (item, callback) {
         if (item.build) {
           list.push (item.name);
+          callback ();
+          return;
         }
 
         var msg = {
-          packageRef: item.name + (item.build ? '-src' : '') + ':' + xPlatform.getToolchainArch ()
+          packageRef: item.name + ':' + xPlatform.getToolchainArch ()
         };
         busClient.command.send ('pacman.install', msg, callback);
       }, function (err) {
