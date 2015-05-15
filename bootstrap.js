@@ -7,7 +7,7 @@ var async = require ('async');
 
 var xLog      = require ('xcraft-core-log') (moduleName);
 var xPlatform = require ('xcraft-core-platform');
-var busClient = require ('xcraft-core-busclient');
+var busClient = require ('xcraft-core-busclient').global;
 
 var cmd = {};
 
