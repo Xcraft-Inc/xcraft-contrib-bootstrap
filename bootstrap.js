@@ -193,14 +193,3 @@ exports.xcraftCommands = function () {
     rc: path.join (__dirname, './rc.json')
   };
 };
-
-/**
- * Publish commands for std module exports.
- */
-var main = function () {
-  Object.keys (cmd).forEach (function (action) {
-    exports[action] = cmd[action];
-  });
-};
-
-main ();
