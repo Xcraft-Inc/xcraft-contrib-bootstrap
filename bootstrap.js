@@ -100,7 +100,7 @@ cmd.peon = function () {
         });
 
         var msg = {
-          packageRef: item.name
+          packageArgs: [item.name]
         };
         busClient.command.send ('pacman.make', msg, callback);
       }, function (err) {
