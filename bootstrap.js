@@ -120,7 +120,7 @@ cmd.peon = function () {
         }
 
         var msg = {
-          packageRef: item.name
+          packageRefs: item.name
         };
         busClient.command.send ('pacman.install', msg, callback);
       }, function (err) {
@@ -131,7 +131,7 @@ cmd.peon = function () {
     /* Build bootstrap packages. */
     build: ['install', function (callback) {
       var msg = {
-        packageRef: ''
+        packageRefs: ''
       };
       busClient.command.send ('pacman.build', msg, callback);
     }],
@@ -140,7 +140,7 @@ cmd.peon = function () {
     installBuild: ['build', function (callback, results) {
       async.eachSeries (results.install, function (item, callback) {
         var msg = {
-          packageRef: item
+          packageRefs: item
         };
         busClient.command.send ('pacman.install', msg, callback);
       }, callback);
