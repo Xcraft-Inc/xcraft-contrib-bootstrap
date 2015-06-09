@@ -130,10 +130,7 @@ cmd.peon = function () {
 
     /* Build bootstrap packages. */
     build: ['install', function (callback) {
-      var msg = {
-        packageRefs: ''
-      };
-      busClient.command.send ('pacman.build', msg, callback);
+      busClient.command.send ('pacman.build', {}, callback);
     }],
 
     /* Install builded packages. */
