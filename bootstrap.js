@@ -39,108 +39,32 @@ cmd.wpkg = function () {
 
 /**
  * Bootstrap the peon.
- *
- * 1. List all packages in the bootstrap namespace.
- * 2. Make these packages.
- *    Deploy in the local repositories (src too).
- * 3. Install these packages in the devroot/.
- * 4. Build the installed source packages in devroot/.
- *    Deploy these packages in the local repository.
- * 5. Install the built packages in devroot/.
  */
 cmd.peon = function () {
+  var boot = 'bootstrap+' + xPlatform.getOs ();
+
   async.auto ({
-    /* Retrieve the list of bootstrap packages. */
-    list: function (callback) {
-      var list = [];
+    /* Make bootstrap packages and all deps. */
+    make: function (callback) {
+      var msg = {
+        packageArgs: [boot + ',<-deps']
+      };
 
-      busClient.events.subscribe ('pacman.list', function (msg) {
-        busClient.events.unsubscribe ('pacman.list');
-        msg.data.forEach (function (item) {
-          if (/^bootstrap\+/.test (item.name)) {
-            list.push ({
-              name:  item.name,
-              build: item.architecture.indexOf ('source') !== -1
-            });
-          }
-        });
-      });
-
-      busClient.command.send ('pacman.list', null, function () {
-        callback (null, list);
-      });
+      busClient.command.send ('pacman.make', msg, callback);
     },
 
-    /* Make bootstrap packages. */
-    make: ['list', function (callback, results) {
-      var list = [];
-
-      async.eachSeries (results.list, function (item, callback) {
-        busClient.events.subscribe ('pacman.make.control', function (msg) {
-          busClient.events.unsubscribe ('pacman.make.control');
-
-          if (!msg.data) {
-            return;
-          }
-
-          msg.data.some (function (controlFile) {
-            if (controlFile.arch !== 'all' &&
-                controlFile.arch !== 'source' &&
-                controlFile.arch !== xPlatform.getToolchainArch ()) {
-              return false;
-            }
-
-            list.push ({
-              name:  item.name,
-              build: controlFile.arch === 'source'
-            });
-
-            return true;
-          });
-        });
-
-        var msg = {
-          packageArgs: [item.name]
-        };
-        busClient.command.send ('pacman.make', msg, callback);
-      }, function (err) {
-        callback (err, list);
-      });
-    }],
-
-    /* Install bootstrap packages (and source packages). */
-    install: ['make', function (callback, results) {
-      var list = [];
-
-      async.eachSeries (results.make, function (item, callback) {
-        if (item.build) {
-          list.push (item.name);
-          callback ();
-          return;
-        }
-
-        var msg = {
-          packageRefs: item.name
-        };
-        busClient.command.send ('pacman.install', msg, callback);
-      }, function (err) {
-        callback (err, list);
-      });
-    }],
-
     /* Build bootstrap packages. */
-    build: ['install', function (callback) {
+    build: ['make', function (callback) {
       busClient.command.send ('pacman.build', {}, callback);
     }],
 
-    /* Install builded packages. */
-    installBuild: ['build', function (callback, results) {
-      async.eachSeries (results.install, function (item, callback) {
-        var msg = {
-          packageRefs: item
-        };
-        busClient.command.send ('pacman.install', msg, callback);
-      }, callback);
+    /* Install bootstrap package. */
+    install: ['build', function (callback) {
+      var msg = {
+        packageRefs: boot
+      };
+
+      busClient.command.send ('pacman.install', msg, callback);
     }]
   }, function (err) {
     if (err) {
