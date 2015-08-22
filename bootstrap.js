@@ -43,6 +43,13 @@ cmd.wpkg = function () {
 cmd.peon = function () {
   var boot = 'bootstrap+' + xPlatform.getOs ();
 
+  var errCallback = function (err, msg, callback) {
+    if (!err && msg.data === busClient.events.status.failed) {
+      err = 'the command has failed';
+    }
+    callback (err);
+  };
+
   async.auto ({
     /* Make bootstrap packages and all deps. */
     make: function (callback) {
@@ -50,12 +57,16 @@ cmd.peon = function () {
         packageArgs: [boot + ',<-deps']
       };
 
-      busClient.command.send ('pacman.make', msg, callback);
+      busClient.command.send ('pacman.make', msg, function (err, msg) {
+        errCallback (err, msg, callback);
+      });
     },
 
     /* Build bootstrap packages. */
     build: ['make', function (callback) {
-      busClient.command.send ('pacman.build', {}, callback);
+      busClient.command.send ('pacman.build', {}, function (err, msg) {
+        errCallback (err, msg, callback);
+      });
     }],
 
     /* Install bootstrap package. */
@@ -64,7 +75,9 @@ cmd.peon = function () {
         packageRefs: boot
       };
 
-      busClient.command.send ('pacman.install', msg, callback);
+      busClient.command.send ('pacman.install', msg, function (err, msg) {
+        errCallback (err, msg, callback);
+      });
     }]
   }, function (err) {
     if (err) {
