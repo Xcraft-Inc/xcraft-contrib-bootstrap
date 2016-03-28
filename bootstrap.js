@@ -64,7 +64,11 @@ cmd.peon = function () {
 
     /* Build bootstrap packages. */
     build: ['make', function (callback) {
-      busClient.command.send ('pacman.build', {}, function (err, msg) {
+      const msg = {
+        packageRefs: boot
+      };
+
+      busClient.command.send ('pacman.build', msg, function (err, msg) {
         errCallback (err, msg, callback);
       });
     }],
