@@ -1,13 +1,9 @@
 'use strict';
 
-var moduleName = 'bootstrap';
-
 var path  = require ('path');
 var async = require ('async');
 
-var xLog      = require ('xcraft-core-log') (moduleName);
 var xPlatform = require ('xcraft-core-platform');
-var busClient = require ('xcraft-core-busclient').getGlobal ();
 
 var cmd = {};
 
@@ -17,34 +13,34 @@ var cmd = {};
  * 1. Build and install CMake.
  * 2. Build and install WPKG.
  */
-cmd.wpkg = function () {
+cmd.wpkg = function (msg, response) {
   async.auto ({
     cmake: function (callback) {
-      busClient.command.send ('cmake.build', null, callback);
+      response.command.send ('cmake.build', null, callback);
     },
 
     wpkg: ['cmake', function (callback) {
-      busClient.command.send ('wpkg.build', null, callback);
+      response.command.send ('wpkg.build', null, callback);
     }]
   }, function (err) {
     if (err) {
-      xLog.err (err);
+      response.log.err (err);
     } else {
-      xLog.info ('wpkg bootstrapped');
+      response.log.info ('wpkg bootstrapped');
     }
 
-    busClient.events.send ('bootstrap.wpkg.finished');
+    response.events.send ('bootstrap.wpkg.finished');
   });
 };
 
 /**
  * Bootstrap the peon.
  */
-cmd.peon = function () {
+cmd.peon = function (msg, response) {
   var boot = 'bootstrap+' + xPlatform.getOs ();
 
   var errCallback = function (err, msg, callback) {
-    if (!err && msg.data === busClient.events.status.failed) {
+    if (!err && msg.data === response.events.status.failed) {
       err = 'the command has failed';
     }
     callback (err);
@@ -57,7 +53,7 @@ cmd.peon = function () {
         packageArgs: [boot + ',<-deps']
       };
 
-      busClient.command.send ('pacman.make', msg, function (err, msg) {
+      response.command.send ('pacman.make', msg, function (err, msg) {
         errCallback (err, msg, callback);
       });
     },
@@ -68,7 +64,7 @@ cmd.peon = function () {
         packageRefs: boot
       };
 
-      busClient.command.send ('pacman.build', msg, function (err, msg) {
+      response.command.send ('pacman.build', msg, function (err, msg) {
         errCallback (err, msg, callback);
       });
     }],
@@ -79,18 +75,18 @@ cmd.peon = function () {
         packageRefs: boot
       };
 
-      busClient.command.send ('pacman.install', msg, function (err, msg) {
+      response.command.send ('pacman.install', msg, function (err, msg) {
         errCallback (err, msg, callback);
       });
     }]
   }, function (err) {
     if (err) {
-      xLog.err (err);
+      response.log.err (err);
     } else {
-      xLog.info ('peon bootstrapped');
+      response.log.info ('peon bootstrapped');
     }
 
-    busClient.events.send ('bootstrap.peon.finished');
+    response.events.send ('bootstrap.peon.finished');
   });
 };
 
@@ -100,23 +96,23 @@ cmd.peon = function () {
  * 1. Bootstrap WPKG.
  * 2. Bootstrap the peon.
  */
-cmd.all = function () {
+cmd.all = function (msg, response) {
   async.series ([
     function (callback) {
-      busClient.command.send ('bootstrap.wpkg', null, callback);
+      response.command.send ('bootstrap.wpkg', null, callback);
     },
 
     function (callback) {
-      busClient.command.send ('bootstrap.peon', null, callback);
+      response.command.send ('bootstrap.peon', null, callback);
     }
   ], function (err) {
     if (err) {
-      xLog.err (err);
+      response.log.err (err);
     } else {
-      xLog.info ('everything bootstrapped');
+      response.log.info ('everything bootstrapped');
     }
 
-    busClient.events.send ('bootstrap.all.finished');
+    response.events.send ('bootstrap.all.finished');
   });
 };
 
@@ -126,8 +122,9 @@ cmd.all = function () {
  * @returns {Object} The list and definitions of commands.
  */
 exports.xcraftCommands = function () {
+  const xUtils = require ('xcraft-core-utils');
   return {
     handlers: cmd,
-    rc: path.join (__dirname, './rc.json')
+    rc: xUtils.json.fromFile (path.join (__dirname, './rc.json'))
   };
 };
