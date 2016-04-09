@@ -17,7 +17,6 @@
   "author": "Mathieu Schroeter",
   "license": "MIT",
   "dependencies": {
-    "async": "^1.4.0",
     "xcraft-core-busclient": "0.1.0",
     "xcraft-core-etc": "0.1.0",
     "xcraft-core-log": "0.1.0",

@@ -1,7 +1,6 @@
 'use strict';
 
 var path  = require ('path');
-var async = require ('async');
 
 var xPlatform = require ('xcraft-core-platform');
 
@@ -13,81 +12,61 @@ var cmd = {};
  * 1. Build and install CMake.
  * 2. Build and install WPKG.
  */
-cmd.wpkg = function (msg, response) {
-  async.auto ({
-    cmake: function (callback) {
-      response.command.send ('cmake.build', null, callback);
-    },
+cmd.wpkg = function * (msg, response, next) {
+  try {
+    yield response.command.send ('cmake.build', null, next);
+    yield response.command.send ('wpkg.build', null, next);
 
-    wpkg: ['cmake', function (callback) {
-      response.command.send ('wpkg.build', null, callback);
-    }]
-  }, function (err) {
-    if (err) {
-      response.log.err (err);
-    } else {
-      response.log.info ('wpkg bootstrapped');
-    }
-
+    response.log.info ('wpkg bootstrapped');
+  } catch (ex) {
+    response.log.err (ex.stack || ex);
+  } finally {
     response.events.send ('bootstrap.wpkg.finished');
-  });
+  }
 };
 
 /**
  * Bootstrap the peon.
  */
-cmd.peon = function (msg, response) {
-  var boot = 'bootstrap+' + xPlatform.getOs ();
+cmd.peon = function * (msg, response, next) {
+  const boot = 'bootstrap+' + xPlatform.getOs ();
 
-  var errCallback = function (err, msg, callback) {
-    if (!err && msg.data === response.events.status.failed) {
-      err = 'the command has failed';
-    }
-    callback (err);
-  };
+  let cmdMsg = null;
+  let result = null;
 
-  async.auto ({
+  try {
     /* Make bootstrap packages and all deps. */
-    make: function (callback) {
-      var msg = {
-        packageArgs: [boot + ',<-deps']
-      };
+    cmdMsg = {
+      packageArgs: [boot + ',<-deps']
+    };
 
-      response.command.send ('pacman.make', msg, function (err, msg) {
-        errCallback (err, msg, callback);
-      });
-    },
+    result = yield response.command.send ('pacman.make', cmdMsg, next);
+    if (result.data === response.events.status.failed) {
+      throw 'the command has failed';
+    }
+
+    cmdMsg = {
+      packageRefs: boot
+    };
 
     /* Build bootstrap packages. */
-    build: ['make', function (callback) {
-      const msg = {
-        packageRefs: boot
-      };
-
-      response.command.send ('pacman.build', msg, function (err, msg) {
-        errCallback (err, msg, callback);
-      });
-    }],
-
-    /* Install bootstrap package. */
-    install: ['build', function (callback) {
-      var msg = {
-        packageRefs: boot
-      };
-
-      response.command.send ('pacman.install', msg, function (err, msg) {
-        errCallback (err, msg, callback);
-      });
-    }]
-  }, function (err) {
-    if (err) {
-      response.log.err (err);
-    } else {
-      response.log.info ('peon bootstrapped');
+    result = yield response.command.send ('pacman.build', cmdMsg, next);
+    if (result.data === response.events.status.failed) {
+      throw 'the command has failed';
     }
 
+    /* Install bootstrap package. */
+    result = yield response.command.send ('pacman.install', cmdMsg, next);
+    if (result.data === response.events.status.failed) {
+      throw 'the command has failed';
+    }
+
+    response.log.info ('peon bootstrapped');
+  } catch (ex) {
+    response.log.err (ex.stack || ex);
+  } finally {
     response.events.send ('bootstrap.peon.finished');
-  });
+  }
 };
 
 /**
@@ -96,24 +75,17 @@ cmd.peon = function (msg, response) {
  * 1. Bootstrap WPKG.
  * 2. Bootstrap the peon.
  */
-cmd.all = function (msg, response) {
-  async.series ([
-    function (callback) {
-      response.command.send ('bootstrap.wpkg', null, callback);
-    },
+cmd.all = function * (msg, response, next) {
+  try {
+    yield response.command.send ('bootstrap.wpkg', null, next);
+    yield response.command.send ('bootstrap.peon', null, next);
 
-    function (callback) {
-      response.command.send ('bootstrap.peon', null, callback);
-    }
-  ], function (err) {
-    if (err) {
-      response.log.err (err);
-    } else {
-      response.log.info ('everything bootstrapped');
-    }
-
+    response.log.info ('everything bootstrapped');
+  } catch (ex) {
+    response.log.err (ex.stack || ex);
+  } finally {
     response.events.send ('bootstrap.all.finished');
-  });
+  }
 };
 
 /**
