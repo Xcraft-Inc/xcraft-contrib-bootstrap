@@ -37,7 +37,7 @@ cmd.peon = function * (msg, response, next) {
   try {
     /* Make bootstrap packages and all deps. */
     cmdMsg = {
-      packageArgs: [boot + ',<-deps']
+      packageArgs: [boot + ',@deps']
     };
 
     result = yield response.command.send ('pacman.make', cmdMsg, next);
