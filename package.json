@@ -17,10 +17,10 @@
   "author": "Mathieu Schroeter",
   "license": "MIT",
   "dependencies": {
-    "xcraft-core-busclient": "0.1.0",
-    "xcraft-core-etc": "0.1.0",
-    "xcraft-core-log": "0.1.0",
-    "xcraft-core-platform": "0.1.0"
+    "xcraft-core-busclient": "^1.0.0",
+    "xcraft-core-etc": "^1.0.0",
+    "xcraft-core-log": "^1.0.0",
+    "xcraft-core-platform": "^1.0.0"
   },
   "devDependencies": {}
 }
