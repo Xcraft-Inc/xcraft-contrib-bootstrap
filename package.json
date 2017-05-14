@@ -16,6 +16,11 @@
   },
   "author": "Mathieu Schroeter",
   "license": "MIT",
+  "config": {
+    "xcraft": {
+      "commands": true
+    }
+  },
   "dependencies": {
     "xcraft-core-busclient": "^1.0.0",
     "xcraft-core-etc": "^1.0.0",
