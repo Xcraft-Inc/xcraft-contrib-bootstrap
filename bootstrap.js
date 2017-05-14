@@ -1,6 +1,6 @@
 'use strict';
 
-var path  = require ('path');
+var path = require ('path');
 
 var xPlatform = require ('xcraft-core-platform');
 
@@ -12,7 +12,7 @@ var cmd = {};
  * 1. Build and install CMake.
  * 2. Build and install WPKG.
  */
-cmd.wpkg = function * (msg, response, next) {
+cmd.wpkg = function* (msg, response, next) {
   try {
     yield response.command.send ('cmake.build', null, next);
     yield response.command.send ('wpkg.build', null, next);
@@ -28,7 +28,7 @@ cmd.wpkg = function * (msg, response, next) {
 /**
  * Bootstrap the peon.
  */
-cmd.peon = function * (msg, response, next) {
+cmd.peon = function* (msg, response, next) {
   const boot = 'bootstrap+' + xPlatform.getOs ();
 
   let cmdMsg = null;
@@ -37,7 +37,7 @@ cmd.peon = function * (msg, response, next) {
   try {
     /* Make bootstrap packages and all deps. */
     cmdMsg = {
-      packageArgs: [boot + ',@deps']
+      packageArgs: [boot + ',@deps'],
     };
 
     result = yield response.command.send ('pacman.make', cmdMsg, next);
@@ -46,7 +46,7 @@ cmd.peon = function * (msg, response, next) {
     }
 
     cmdMsg = {
-      packageRefs: boot
+      packageRefs: boot,
     };
 
     /* Build bootstrap packages. */
@@ -75,7 +75,7 @@ cmd.peon = function * (msg, response, next) {
  * 1. Bootstrap WPKG.
  * 2. Bootstrap the peon.
  */
-cmd.all = function * (msg, response, next) {
+cmd.all = function* (msg, response, next) {
   try {
     yield response.command.send ('bootstrap.wpkg', null, next);
     yield response.command.send ('bootstrap.peon', null, next);
@@ -97,6 +97,6 @@ exports.xcraftCommands = function () {
   const xUtils = require ('xcraft-core-utils');
   return {
     handlers: cmd,
-    rc: xUtils.json.fromFile (path.join (__dirname, './rc.json'))
+    rc: xUtils.json.fromFile (path.join (__dirname, './rc.json')),
   };
 };
