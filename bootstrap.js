@@ -21,7 +21,7 @@ cmd.wpkg = function* (msg, response, next) {
   } catch (ex) {
     response.log.err (ex.stack || ex);
   } finally {
-    response.events.send ('bootstrap.wpkg.finished');
+    response.events.send (`bootstrap.wpkg.${msg.id}.finished`);
   }
 };
 
@@ -65,7 +65,7 @@ cmd.peon = function* (msg, response, next) {
   } catch (ex) {
     response.log.err (ex.stack || ex);
   } finally {
-    response.events.send ('bootstrap.peon.finished');
+    response.events.send (`bootstrap.peon.${msg.id}.finished`);
   }
 };
 
@@ -84,7 +84,7 @@ cmd.all = function* (msg, response, next) {
   } catch (ex) {
     response.log.err (ex.stack || ex);
   } finally {
-    response.events.send ('bootstrap.all.finished');
+    response.events.send (`bootstrap.all.${msg.id}.finished`);
   }
 };
 
