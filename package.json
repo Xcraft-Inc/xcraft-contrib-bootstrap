@@ -25,6 +25,6 @@
     "xcraft-core-platform": "^1.0.0"
   },
   "devDependencies": {
-    "xcraft-dev-rules": "^0.3.0"
+    "xcraft-dev-rules": "^0.4.0"
   }
 }
