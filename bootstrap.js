@@ -12,23 +12,23 @@ var cmd = {};
  * 1. Build and install CMake.
  * 2. Build and install WPKG.
  */
-cmd.wpkg = function*(msg, response, next) {
+cmd.wpkg = function*(msg, resp, next) {
   try {
-    yield response.command.send('cmake.build', null, next);
-    yield response.command.send('wpkg.build', null, next);
+    yield resp.command.send('cmake.build', null, next);
+    yield resp.command.send('wpkg.build', null, next);
 
-    response.log.info('wpkg bootstrapped');
+    resp.log.info('wpkg bootstrapped');
   } catch (ex) {
-    response.log.err(ex.stack || ex);
+    resp.log.err(ex.stack || ex);
   } finally {
-    response.events.send(`bootstrap.wpkg.${msg.id}.finished`);
+    resp.events.send(`bootstrap.wpkg.${msg.id}.finished`);
   }
 };
 
 /**
  * Bootstrap the peon.
  */
-cmd.peon = function*(msg, response, next) {
+cmd.peon = function*(msg, resp, next) {
   const boot = 'bootstrap+' + xPlatform.getOs();
 
   let cmdMsg = null;
@@ -40,8 +40,8 @@ cmd.peon = function*(msg, response, next) {
       packageArgs: [boot + ',@deps'],
     };
 
-    result = yield response.command.send('pacman.make', cmdMsg, next);
-    if (result.data === response.events.status.failed) {
+    result = yield resp.command.send('pacman.make', cmdMsg, next);
+    if (result.data === resp.events.status.failed) {
       throw 'the command has failed';
     }
 
@@ -50,22 +50,22 @@ cmd.peon = function*(msg, response, next) {
     };
 
     /* Build bootstrap packages. */
-    result = yield response.command.send('pacman.build', cmdMsg, next);
-    if (result.data === response.events.status.failed) {
+    result = yield resp.command.send('pacman.build', cmdMsg, next);
+    if (result.data === resp.events.status.failed) {
       throw 'the command has failed';
     }
 
     /* Install bootstrap package. */
-    result = yield response.command.send('pacman.install', cmdMsg, next);
-    if (result.data === response.events.status.failed) {
+    result = yield resp.command.send('pacman.install', cmdMsg, next);
+    if (result.data === resp.events.status.failed) {
       throw 'the command has failed';
     }
 
-    response.log.info('peon bootstrapped');
+    resp.log.info('peon bootstrapped');
   } catch (ex) {
-    response.log.err(ex.stack || ex);
+    resp.log.err(ex.stack || ex);
   } finally {
-    response.events.send(`bootstrap.peon.${msg.id}.finished`);
+    resp.events.send(`bootstrap.peon.${msg.id}.finished`);
   }
 };
 
@@ -75,16 +75,16 @@ cmd.peon = function*(msg, response, next) {
  * 1. Bootstrap WPKG.
  * 2. Bootstrap the peon.
  */
-cmd.all = function*(msg, response, next) {
+cmd.all = function*(msg, resp, next) {
   try {
-    yield response.command.send('bootstrap.wpkg', null, next);
-    yield response.command.send('bootstrap.peon', null, next);
+    yield resp.command.send('bootstrap.wpkg', null, next);
+    yield resp.command.send('bootstrap.peon', null, next);
 
-    response.log.info('everything bootstrapped');
+    resp.log.info('everything bootstrapped');
   } catch (ex) {
-    response.log.err(ex.stack || ex);
+    resp.log.err(ex.stack || ex);
   } finally {
-    response.events.send(`bootstrap.all.${msg.id}.finished`);
+    resp.events.send(`bootstrap.all.${msg.id}.finished`);
   }
 };
 
