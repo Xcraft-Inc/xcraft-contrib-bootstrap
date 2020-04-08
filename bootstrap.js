@@ -12,7 +12,7 @@ var cmd = {};
  * 1. Build and install CMake.
  * 2. Build and install WPKG.
  */
-cmd.wpkg = function*(msg, resp, next) {
+cmd.wpkg = function* (msg, resp, next) {
   try {
     yield resp.command.send('cmake.build', null, next);
     yield resp.command.send('wpkg.build', null, next);
@@ -28,7 +28,7 @@ cmd.wpkg = function*(msg, resp, next) {
 /**
  * Bootstrap the peon.
  */
-cmd.peon = function*(msg, resp, next) {
+cmd.peon = function* (msg, resp, next) {
   const boot = 'bootstrap+' + xPlatform.getOs();
 
   let cmdMsg = null;
@@ -75,7 +75,7 @@ cmd.peon = function*(msg, resp, next) {
  * 1. Bootstrap WPKG.
  * 2. Bootstrap the peon.
  */
-cmd.all = function*(msg, resp, next) {
+cmd.all = function* (msg, resp, next) {
   try {
     yield resp.command.send('bootstrap.wpkg', null, next);
     yield resp.command.send('bootstrap.peon', null, next);
@@ -93,7 +93,7 @@ cmd.all = function*(msg, resp, next) {
  *
  * @returns {Object} The list and definitions of commands.
  */
-exports.xcraftCommands = function() {
+exports.xcraftCommands = function () {
   return {
     handlers: cmd,
     rc: {
