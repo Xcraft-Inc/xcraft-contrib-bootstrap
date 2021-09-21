@@ -1,6 +1,6 @@
 {
   "name": "xcraft-contrib-bootstrap",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Xcraft bootstrap",
   "main": "bootstrap.js",
   "scripts": {
@@ -22,12 +22,8 @@
     }
   },
   "dependencies": {
-    "xcraft-contrib-bootcmake": "^0.1.0",
-    "xcraft-contrib-bootwpkg": "^0.1.0",
-    "xcraft-core-busclient": "^1.0.0",
-    "xcraft-core-etc": "^1.0.0",
-    "xcraft-core-log": "^1.0.0",
-    "xcraft-core-platform": "^1.0.0"
+    "xcraft-contrib-bootcmake": "^0.2.0",
+    "xcraft-contrib-bootwpkg": "^0.2.0"
   },
   "devDependencies": {
     "prettier": "2.0.4",
