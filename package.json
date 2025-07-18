@@ -14,7 +14,10 @@
     "type": "file",
     "url": "lib/xcraft-contrib-bootstrap"
   },
-  "author": "Mathieu Schroeter",
+  "author": "Epsitec SA",
+  "contributors": [
+    "Mathieu Schroeter <schroeter@epsitec.ch>"
+  ],
   "license": "MIT",
   "config": {
     "xcraft": {
